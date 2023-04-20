@@ -96,13 +96,13 @@ def print_grid(grid, organisms):
         print(" ".join(row))
     print("")
 
-def run_simulation(grid, organisms, steps):
+def run_simulation(grid, organisms, steps, Den):
     for step in range(steps):
         print(f"\nStep {step + 1}")
         print_grid(grid, organisms)
         updated_organisms = []
 
-        resources = [(generate_random_coordinates(grid), generate_resource()) for _ in range(10)]
+        resources = [(generate_random_coordinates(grid), generate_resource()) for _ in range(Den)]
 
         for organism in organisms:
             organism.strength -= 1
@@ -138,7 +138,12 @@ def run_simulation(grid, organisms, steps):
                     print(f"Organism {organism.family} consumed resource {resource} at ({resource_x}, {resource_y})")
 
         organisms = [organism for organism in updated_organisms if organism.strength > 0]
-
-grid = Grid(5, 5)
+Gx = int(input("Grid X size [number only]: "))
+Gy = int(input("Grid Y size [number only]: "))
+Rounds = int(input("Enter number of simulation steps [number only]: "))
+RDensityP = int(input("Enter resource density 0-100 [number only]: "))
+Rden = round((Gx * Gy) * (RDensityP / 100))
+print(Gx, Gy, Rounds, Rden)
+grid = Grid(Gx, Gy)
 organisms = place_initial_organisms(grid)
-run_simulation(grid, organisms, 50)
+run_simulation(grid, organisms, Rounds, Rden)
