@@ -99,6 +99,9 @@ def print_grid(grid, organisms):
 
 def run_simulation(grid, organisms, steps, den):
     for step in range(steps):
+        if len(organisms) >= grid.width * grid.height:
+            print("\nThe grid is full. Stopping the simulation.")
+            break
         print(f"\nStep {step + 1}")
         print_grid(grid, organisms)
         updated_organisms = []
