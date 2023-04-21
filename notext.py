@@ -64,12 +64,12 @@ class Organism:
                 interaction = "fight"
 
         if interaction == "cooperate":
-            print(f"Interaction happened between {self.family} and {other.family}: cooperation")
+            #print(f"Interaction happened between {self.family} and {other.family}: cooperation")
             return {"interaction": interaction}
         elif interaction == "fight":
             winner = self if self.strength > other.strength else other
-            print(f"Interaction happened between {self.family} and {other.family}: fight")
-            print(f"Organism {winner.family} won the fight")
+            #print(f"Interaction happened between {self.family} and {other.family}: fight")
+            #print(f"Organism {winner.family} won the fight")
             return {"interaction": interaction, "winner": winner}
 
     def calculate_fight_gain(self, other, resource_value):
@@ -124,10 +124,18 @@ def print_grid(grid, organisms):
         print(" ".join(row))
     print("")
 
+def print_family_stats(family_stats, steps):
+    print("\nFamily Stats:")
+    for family, stats in family_stats.items():
+        print(f"Family {family}:")
+        print(f"  Lasted {min(stats['steps'], steps)} steps")
+        #print(f"  Lasted {stats['steps']} steps")
+        print(f"  Fought {stats['fights']} times")
+        print(f"  Cooperated {stats['cooperations']} times")
+
 def run_simulation(grid, organisms, steps, den):
-    interactions = {"fight": 0, "cooperate": 0}
-    family_stats = defaultdict(lambda: {"last_step": 0, "fights": 0, "cooperations": 0})
-    
+    family_stats = defaultdict(lambda: {"steps": 0, "fights": 0, "cooperations": 0})
+
     for step in range(steps):
         if len(organisms) >= grid.width * grid.height:
             print("\nThe grid is full. Stopping the simulation.")
@@ -147,8 +155,11 @@ def run_simulation(grid, organisms, steps, den):
             organism.strength -= 1
             if organism.strength <= 0:
                 grid.remove_organism(organism.x, organism.y)
-                print(f"Organism {organism.family} died.")
+                #print(f"Organism {organism.family} died.")
                 continue
+
+            # Update steps for the organism's family
+            family_stats[organism.family]["steps"] += 1
 
             old_x, old_y = organism.x, organism.y
             new_x, new_y = move_organism(organism, grid)
@@ -156,16 +167,22 @@ def run_simulation(grid, organisms, steps, den):
             other_organism = grid.get_organism(new_x, new_y)
             if other_organism is not None:
                 interaction_type, winner = interact(organism, other_organism, generate_resource())
-                print(f"Interaction happened between {organism.family} and {other_organism.family}: {interaction_type}")
-                interactions[interaction_type] += 1
-                family_stats[organism.family].setdefault(interaction_type, 0)
-                family_stats[organism.family][interaction_type] += 1
-                family_stats[other_organism.family].setdefault(interaction_type, 0)
-                family_stats[other_organism.family][interaction_type] += 1
+                #print(f"Interaction happened between {organism.family} and {other_organism.family}: {interaction_type}")
+
+                # Update family_stats here
+                #family_stats[organism.family].setdefault(interaction_type, 0)
+                #family_stats[organism.family][interaction_type] += 1
+                #family_stats[other_organism.family].setdefault(interaction_type, 0)
+                #family_stats[other_organism.family][interaction_type] += 1
+                if interaction_type == "fight":
+                    family_stats[winner.family]["fights"] += 1
+                else:
+                    family_stats[organism.family]["cooperations"] += 1
+                    family_stats[other_organism.family]["cooperations"] += 1
 
 
                 if interaction_type == "fight":
-                    print(f"Winner: {winner.family}")
+                    #print(f"Winner: {winner.family}")
                     if winner is organism:
                         grid.remove_organism(new_x, new_y)
                     else:
@@ -180,7 +197,7 @@ def run_simulation(grid, organisms, steps, den):
                     offspring_x, offspring_y = generate_random_coordinates(grid)
                 grid.place_organism(offspring, offspring_x, offspring_y)
                 updated_organisms.append(offspring)
-                print(f"Organism {organism.family} reproduced at ({offspring_x}, {offspring_y})")
+                #print(f"Organism {organism.family} reproduced at ({offspring_x}, {offspring_y})")
 
             if organism.strength > 0:
                 grid.remove_organism(old_x, old_y)
@@ -191,22 +208,14 @@ def run_simulation(grid, organisms, steps, den):
                 if new_x == resource_x and new_y == resource_y:
                     resource = next(value for coord, value in resources if coord == (resource_x, resource_y))
                     organism.consume(resource)
-                    print(f"Organism {organism.family} consumed resource {resource} at ({resource_x}, {resource_y})")
+                    #print(f"Organism {organism.family} consumed resource {resource} at ({resource_x}, {resource_y})")
 
         organisms = [organism for organism in updated_organisms if organism.strength > 0]
 
-        for organism in organisms:
-            family_stats[organism.family]["last_step"] = step + 1
+    print("\nSimulation Ended")
+    print_family_stats(family_stats, steps)
 
-    # Find the family with the longest survival time
-    longest_surviving_family = max(family_stats, key=lambda f: family_stats[f]["last_step"])
-    family_data = family_stats[longest_surviving_family]
 
-    print("\nSimulation statistics:")
-    print(f"Family that lasted the longest: {longest_surviving_family}")
-    print(f"Steps survived: {family_data['last_step']}")
-    print(f"Times fought: {family_data['fights']}")
-    print(f"Times cooperated: {family_data['cooperations']}")
 
 Gx = int(input("Grid X size [number only]: "))
 Gy = int(input("Grid Y size [number only]: "))
@@ -217,3 +226,11 @@ print(Gx, Gy, Rounds, Rden)
 grid = Grid(Gx, Gy)
 organisms = place_initial_organisms(grid)
 run_simulation(grid, organisms, Rounds, Rden)
+
+
+
+#for family, stats in family_stats.items():
+    #print(f"Family {family}:")
+    #print(f"Survived for {min(stats['steps'], steps)} steps")
+    #print(f"Fought {stats['fight']} times")
+    #print(f"Cooperated {stats['cooperate']} times")
