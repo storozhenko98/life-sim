@@ -215,6 +215,16 @@ def run_simulation(grid, organisms, steps, den):
     print("\nSimulation Ended")
     print_family_stats(family_stats, steps)
 
+    Gx = int(input("Grid X size [number only]: "))
+    Gy = int(input("Grid Y size [number only]: "))
+    Rounds = int(input("Enter number of simulation steps [number only]: "))
+    RDensityP = int(input("Enter resource density 0-100 [number only]: "))
+    Rden = round((Gx * Gy) * (RDensityP / 100))
+    print(Gx, Gy, Rounds, Rden)
+    grid = Grid(Gx, Gy)
+    organisms = place_initial_organisms(grid)
+    run_simulation(grid, organisms, Rounds, Rden)
+
 
 
 Gx = int(input("Grid X size [number only]: "))
